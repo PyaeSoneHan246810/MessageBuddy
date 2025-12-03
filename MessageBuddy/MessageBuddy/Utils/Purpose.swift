@@ -9,6 +9,7 @@ import Foundation
 
 enum Purpose: String, Identifiable, CaseIterable {
     case informative
+    case casual
     case persuasive
     case supportive
     case apologetic
@@ -19,7 +20,6 @@ enum Purpose: String, Identifiable, CaseIterable {
     case checkIn
     case thankYou
     case motivational
-    case casual
 
     var id: String {
         self.rawValue
@@ -29,6 +29,8 @@ enum Purpose: String, Identifiable, CaseIterable {
         switch self {
         case .informative:
             return "Informative"
+        case .casual:
+            return "Casual"
         case .persuasive:
             return "Persuasive"
         case .supportive:
@@ -49,8 +51,6 @@ enum Purpose: String, Identifiable, CaseIterable {
             return "Thank You"
         case .motivational:
             return "Motivational"
-        case .casual:
-            return "Casual"
         }
     }
 }

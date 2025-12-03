@@ -8,11 +8,30 @@
 import SwiftUI
 
 struct MessageScreenModel: Hashable {
-    
+    let messageIdea: String
+    let keyPoints: [KeyPoint]
+    let purpose: Purpose
+    let tone: Tone
+    let language: Language
+    let messageLength: MessageLength
 }
 
 struct MessageScreenView: View {
-    private var viewModel: MessageScreenViewModel = .init()
+    @Binding var messageGenerator: MessageGenerator
+    let screenModel: MessageScreenModel
+    var purposeLabel: String {
+        screenModel.purpose.labelText
+    }
+    var toneLabel: String {
+        "\(screenModel.tone.emoji) \(screenModel.tone.labelText)"
+    }
+    var languageLabel: String {
+        "\(screenModel.language.emoji) \(screenModel.language.labelText)"
+    }
+    
+    var messageLengthLabel: String {
+        "\(screenModel.messageLength.labelText) (\(screenModel.messageLength.description))"
+    }
     var body: some View {
         Form {
             generatedMessageSectionView
@@ -29,11 +48,24 @@ private extension MessageScreenView {
     var generatedMessageSectionView: some View {
         Section {
             VStack(alignment: .leading, spacing: 12.0) {
-                Text("Generated Message ✨")
-                    .font(.headline)
-                if let message = viewModel.message {
-                    Text(message)
+                HStack {
+                    Text("Generated Message ✨")
+                        .font(.headline)
+                    Spacer()
+                    if messageGenerator.isGenerateMessageSessionResponding {
+                        HStack(spacing: 4.0) {
+                            Image(systemName: "sparkles")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32.0, height: 32.0)
+                                .symbolEffect(.variableColor)
+                            Text("streaming")
+                                .font(.callout)
+                        }
+                        .foregroundStyle(Theme.mainGradient)
+                    }
                 }
+                Text(messageGenerator.generatedMessage)
                 Button("Edit", systemImage: "square.and.pencil") {
                     
                 }
@@ -46,6 +78,7 @@ private extension MessageScreenView {
             .frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: 8.0) {
                 Button {
+                    
                 } label: {
                     HStack(spacing: 4.0) {
                         Image(systemName: "document.on.document")
@@ -79,17 +112,15 @@ private extension MessageScreenView {
             VStack(alignment: .leading, spacing: 8.0) {
                 Text("Message Idea")
                     .font(.headline)
-                if let messageIdea = viewModel.messageIdea {
-                    Text(messageIdea)
-                        .font(.callout)
-                }
+                Text(screenModel.messageIdea)
+                    .font(.callout)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            VStack(alignment: .leading, spacing: 8.0) {
-                Text("Key Points")
-                    .font(.headline)
-                if let keyPoints = viewModel.keyPoints {
-                    ForEach(keyPoints) { keyPoint in
+            if !screenModel.keyPoints.isEmpty {
+                VStack(alignment: .leading, spacing: 8.0) {
+                    Text("Key Points")
+                        .font(.headline)
+                    ForEach(screenModel.keyPoints) { keyPoint in
                         HStack(alignment: .firstTextBaseline, spacing: 8.0) {
                             Image(systemName: "arrowshape.right.fill")
                                 .foregroundStyle(.secondary)
@@ -97,30 +128,31 @@ private extension MessageScreenView {
                         }
                         .font(.callout)
                     }
+                    
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     var messagePreferencesSectionView: some View {
         Section {
             LabeledContent {
-                Text(viewModel.toneLabel).font(.callout)
-            } label: {
-                Text("Tone").font(.headline)
-            }
-            LabeledContent {
-                Text(viewModel.purposeLabel).font(.callout)
+                Text(purposeLabel).font(.callout)
             } label: {
                 Text("Purpose").font(.headline)
             }
             LabeledContent {
-                Text(viewModel.languageLabel).font(.callout)
+                Text(toneLabel).font(.callout)
             } label: {
                 Text("Tone").font(.headline)
             }
             LabeledContent {
-                Text(viewModel.messageLengthLabel).font(.callout)
+                Text(languageLabel).font(.callout)
+            } label: {
+                Text("Language").font(.headline)
+            }
+            LabeledContent {
+                Text(messageLengthLabel).font(.callout)
             } label: {
                 Text("Message Length").font(.headline)
             }
@@ -130,6 +162,9 @@ private extension MessageScreenView {
 
 #Preview {
     NavigationStack {
-        MessageScreenView()
+        MessageScreenView(
+            messageGenerator: .constant(.init()),
+            screenModel: .init(messageIdea: "", keyPoints: [], purpose: .informative, tone: .formal, language: .english, messageLength: .short)
+        )
     }
 }

@@ -13,7 +13,8 @@ struct GenerateMessageScreenModel: Hashable {
 }
 
 struct GenerateMessageScreenView: View {
-    @State private var viewModel: GenerateMessageScreenViewModel = .init()
+    @State private var messageGenerator: MessageGenerator = .init()
+    @State private var messageScreenModel: MessageScreenModel? = nil
     var body: some View {
         Form {
             messageIdeaInputView
@@ -26,11 +27,14 @@ struct GenerateMessageScreenView: View {
         }
         .navigationTitle("Generate Message")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(item: $viewModel.messageScreenModel) { screenModel in
-            MessageScreenView()
+        .navigationDestination(item: $messageScreenModel) { screenModel in
+            MessageScreenView(
+                messageGenerator: $messageGenerator,
+                screenModel: screenModel
+            )
         }
         .onAppear {
-            viewModel.prewarmRandomMessageIdeaSession()
+            messageGenerator.prewarmRandomMessageIdeaSession()
         }
     }
 }
@@ -43,7 +47,7 @@ private extension GenerateMessageScreenView {
                     .font(.headline)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Spacer()
-                if viewModel.isRandomMessageSessionResponding {
+                if messageGenerator.isRandomMessageSessionResponding {
                     Image(systemName: "sparkles")
                         .resizable()
                         .scaledToFit()
@@ -52,13 +56,13 @@ private extension GenerateMessageScreenView {
                         .symbolEffect(.variableColor)
                 }
             }
-            .animation(.spring, value: viewModel.isRandomMessageSessionResponding)
-            TextField("Enter the idea or topic for your message", text: $viewModel.messageIdea, axis: .vertical)
+            .animation(.spring, value: messageGenerator.isRandomMessageSessionResponding)
+            TextField("Enter the idea or topic for your message", text: $messageGenerator.messageIdea, axis: .vertical)
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 60.0, alignment: .top)
             Button("Random Idea", systemImage: "dice") {
                 Task {
-                    await viewModel.generateRandomMessageIdea()
+                    await messageGenerator.generateRandomMessageIdea()
                 }
             }
             .buttonStyle(.borderedProminent)
@@ -70,23 +74,23 @@ private extension GenerateMessageScreenView {
     }
     var keyPointsInputView: some View {
         VStack(spacing: 10.0) {
-            Toggle("Key Points", isOn: $viewModel.isKeyPointsIncluded)
+            Toggle("Key Points", isOn: $messageGenerator.isKeyPointsIncluded)
                 .font(.headline)
-            if viewModel.isKeyPointsIncluded {
-                ForEach($viewModel.keyPoints.enumerated(), id: \.element.wrappedValue.id) { index, $keyPoint in
+            if messageGenerator.isKeyPointsIncluded {
+                ForEach($messageGenerator.keyPoints.enumerated(), id: \.element.wrappedValue.id) { index, $keyPoint in
                     keyPointItemView(index: index, keyPoint: $keyPoint)
                 }
                 Button("Add", systemImage: "plus") {
-                    viewModel.addNewKeyPoint()
+                    messageGenerator.addNewKeyPoint()
                 }
                 .buttonStyle(.bordered)
                 .labelIconToTitleSpacing(4.0)
                 .buttonSizing(.flexible)
             }
         }
-        .onChange(of: viewModel.isKeyPointsIncluded) {
-            if viewModel.isKeyPointsIncluded && viewModel.keyPoints.isEmpty {
-                viewModel.addNewKeyPoint()
+        .onChange(of: messageGenerator.isKeyPointsIncluded) {
+            if messageGenerator.isKeyPointsIncluded && messageGenerator.keyPoints.isEmpty {
+                messageGenerator.addNewKeyPoint()
             }
         }
     }
@@ -104,7 +108,7 @@ private extension GenerateMessageScreenView {
                 .imageScale(.large)
                 .foregroundStyle(.pink)
                 .onTapGesture {
-                    viewModel.removeKeyPoint(for: keyPointValue.id)
+                    messageGenerator.removeKeyPoint(for: keyPointValue.id)
                 }
         }
         .padding(12.0)
@@ -115,7 +119,7 @@ private extension GenerateMessageScreenView {
         }
     }
     var toneSelectionView: some View {
-        Picker("Tone", selection: $viewModel.tone) {
+        Picker("Tone", selection: $messageGenerator.tone) {
             ForEach(Tone.allCases) { tone in
                 Text("\(tone.emoji) \(tone.labelText)")
                     .tag(tone)
@@ -124,7 +128,7 @@ private extension GenerateMessageScreenView {
         .font(.headline)
     }
     var purposeSelectionView: some View {
-        Picker("Purpose", selection: $viewModel.purpose) {
+        Picker("Purpose", selection: $messageGenerator.purpose) {
             ForEach(Purpose.allCases) { purpose in
                 Text(purpose.labelText)
                     .tag(purpose)
@@ -133,7 +137,7 @@ private extension GenerateMessageScreenView {
         .font(.headline)
     }
     var languageSelectionView: some View {
-        Picker("Language", selection: $viewModel.language) {
+        Picker("Language", selection: $messageGenerator.language) {
             ForEach(Language.allCases) { language in
                 Text("\(language.emoji) \(language.labelText)")
                     .tag(language)
@@ -145,7 +149,7 @@ private extension GenerateMessageScreenView {
         VStack(alignment: .leading) {
             Text("Message Length")
                 .font(.headline)
-            Picker(selection: $viewModel.messageLength) {
+            Picker(selection: $messageGenerator.messageLength) {
                 ForEach(MessageLength.allCases) { messageLength in
                     HStack {
                         VStack(alignment: .leading, spacing: 0.0) {
@@ -165,8 +169,10 @@ private extension GenerateMessageScreenView {
     }
     var generateMessageButtonView: some View {
         Button {
-            let screenModel: MessageScreenModel = .init()
-            viewModel.navigateToMessageScreen(screenModel)
+            navigateToMessageScreen()
+            Task {
+                await messageGenerator.generateMessage()
+            }
         } label: {
             HStack(spacing: 4.0) {
                 Image(systemName: "sparkles")
@@ -179,6 +185,20 @@ private extension GenerateMessageScreenView {
             .background(Theme.mainGradient, in: .capsule)
         }
         .buttonStyle(.borderless)
+    }
+}
+
+extension GenerateMessageScreenView {
+    func navigateToMessageScreen() {
+        let screenModel: MessageScreenModel = .init(
+            messageIdea: messageGenerator.messageIdea,
+            keyPoints: messageGenerator.keyPoints,
+            purpose: messageGenerator.purpose,
+            tone: messageGenerator.tone,
+            language: messageGenerator.language,
+            messageLength: messageGenerator.messageLength
+        )
+        messageScreenModel = screenModel
     }
 }
 

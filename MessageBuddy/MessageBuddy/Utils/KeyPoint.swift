@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct KeyPoint: Identifiable {
+struct KeyPoint: Identifiable, Hashable {
     let id: UUID = .init()
     var text: String = ""
 }
