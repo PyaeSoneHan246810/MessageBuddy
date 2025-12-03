@@ -1,14 +1,16 @@
 //
-//  StaticData.swift
+//  MessageGeneratorTabViewModel.swift
 //  MessageBuddy
 //
 //  Created by Dylan on 2/12/25.
 //
 
 import Foundation
+import Observation
 
-class StaticData {
-    static let messageIdeas: [MessageIdea] = [
+@Observable
+class MessageGeneratorTabViewModel {
+    private(set) var messageIdeas: [MessageIdea] = [
         .init(
             title: "Birthday Wish",
             description: "A warm and heartfelt message for someone’s special day.",
@@ -40,4 +42,8 @@ class StaticData {
             emoji: "😄"
         )
     ]
+    var generateMessageScreenModel: GenerateMessageScreenModel? = nil
+    func navigateToGenerateMessageScreen(_ screenModel: GenerateMessageScreenModel) {
+        generateMessageScreenModel = screenModel
+    }
 }
