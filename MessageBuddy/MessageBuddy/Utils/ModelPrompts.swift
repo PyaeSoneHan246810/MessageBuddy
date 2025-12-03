@@ -28,10 +28,10 @@ class ModelPrompts {
 
             Instructions:
             - Use the message idea as the main context: "\(idea)".
-            - Include all provided key points naturally: \(keyPoints.joined(separator: ", ")).
+            - Consider all provided key points: \(keyPoints.joined(separator: ", ")).
             - If any important contextual detail (e.g., recipient's name) is missing, add a placeholder like "[Recipient's Name]".
             - Match the requested tone, purpose, and language consistently throughout the message.
-            - Adjust length according to \(messageLength.labelText): concise if short, moderately detailed if medium, fully expressive if detailed.
+            - Adjust the message length accordingly: concise if short, moderately detailed if medium, fully expressive if detailed.
             - Avoid extra labels, headings, or explanations; output only a ready-to-send message.
             - Ensure the message is coherent, human-like, and suitable for interpersonal communication.
 

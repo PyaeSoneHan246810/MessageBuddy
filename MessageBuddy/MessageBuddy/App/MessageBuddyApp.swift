@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Toasts
 
 @main
 struct MessageBuddyApp: App {
@@ -16,6 +17,7 @@ struct MessageBuddyApp: App {
             StartingView()
                 .preferredColorScheme(selectedColorMode.colorScheme)
                 .environment(\.dynamicTypeSize, selectedFontSize.dynamicTypeSize)
+                .installToast(position: .bottom)
         }
     }
 }

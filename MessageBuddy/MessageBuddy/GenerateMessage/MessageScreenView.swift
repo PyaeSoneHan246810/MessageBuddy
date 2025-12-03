@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Toasts
 
 struct MessageScreenModel: Hashable {
     let messageIdea: String
@@ -17,6 +18,9 @@ struct MessageScreenModel: Hashable {
 }
 
 struct MessageScreenView: View {
+    @Environment(\.presentToast) private var presentToast
+    @State private var isEditMessageSheetPresented: Bool = false
+    @State private var isShareMessageSheetPresented: Bool = false
     @Binding var messageGenerator: MessageGenerator
     let screenModel: MessageScreenModel
     var purposeLabel: String {
@@ -41,6 +45,12 @@ struct MessageScreenView: View {
         .listSectionSpacing(16.0)
         .navigationTitle("Message")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $isEditMessageSheetPresented) {
+            editMessageSheetView
+        }
+        .sheet(isPresented: $isShareMessageSheetPresented) {
+            shareMessageSheetView
+        }
     }
 }
 
@@ -67,7 +77,7 @@ private extension MessageScreenView {
                 }
                 Text(messageGenerator.generatedMessage)
                 Button("Edit", systemImage: "square.and.pencil") {
-                    
+                    isEditMessageSheetPresented = true
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.cyan)
@@ -78,7 +88,7 @@ private extension MessageScreenView {
             .frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: 8.0) {
                 Button {
-                    
+                    copyMessageToClipboard()
                 } label: {
                     HStack(spacing: 4.0) {
                         Image(systemName: "document.on.document")
@@ -92,6 +102,7 @@ private extension MessageScreenView {
                 }
                 .buttonStyle(.borderless)
                 Button {
+                    isShareMessageSheetPresented = true
                 } label: {
                     HStack(spacing: 4.0) {
                         Image(systemName: "square.and.arrow.up")
@@ -156,6 +167,49 @@ private extension MessageScreenView {
             } label: {
                 Text("Message Length").font(.headline)
             }
+        }
+    }
+    var shareMessageSheetView: some View {
+        ActivityView(
+            text: messageGenerator.generatedMessage
+        )
+        .presentationDetents([.medium, .large])
+    }
+    var editMessageSheetView: some View {
+        NavigationStack {
+            ScrollView(.vertical) {
+                VStack {
+                    TextField(
+                        "Enter the message",
+                        text: $messageGenerator.generatedMessage,
+                        axis: .vertical
+                    )
+                }
+            }
+            .scrollIndicators(.hidden)
+            .contentMargins(16.0)
+            .navigationTitle("Edit Message")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                Button(role: .close) {
+                    isEditMessageSheetPresented = false
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}
+
+extension MessageScreenView {
+    func copyMessageToClipboard() {
+        let uiPasteboard = UIPasteboard.general
+        uiPasteboard.string = messageGenerator.generatedMessage
+        if uiPasteboard.string != nil {
+            let toastValue = ToastValue(
+                icon: Image(systemName: "list.clipboard").foregroundStyle(Theme.mainGradient),
+                message: "Copied to clipboard."
+            )
+            presentToast(toastValue)
         }
     }
 }
