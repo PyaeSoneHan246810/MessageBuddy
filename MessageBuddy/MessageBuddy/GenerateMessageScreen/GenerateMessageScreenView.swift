@@ -18,8 +18,8 @@ struct GenerateMessageScreenView: View {
         Form {
             messageIdeaInputView
             keyPointsInputView
-            toneSelectionView
             purposeSelectionView
+            toneSelectionView
             languageSelectionView
             messageLengthSelectionView
             generateMessageButtonView
@@ -48,7 +48,7 @@ private extension GenerateMessageScreenView {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 32.0, height: 32.0)
-                        .foregroundStyle(.accent)
+                        .foregroundStyle(Theme.mainGradient)
                         .symbolEffect(.variableColor)
                 }
             }
@@ -117,7 +117,7 @@ private extension GenerateMessageScreenView {
     var toneSelectionView: some View {
         Picker("Tone", selection: $viewModel.tone) {
             ForEach(Tone.allCases) { tone in
-                Text("\(tone.emoji)\(tone.labelText)")
+                Text("\(tone.emoji) \(tone.labelText)")
                     .tag(tone)
             }
         }
@@ -135,7 +135,7 @@ private extension GenerateMessageScreenView {
     var languageSelectionView: some View {
         Picker("Language", selection: $viewModel.language) {
             ForEach(Language.allCases) { language in
-                Text("\(language.emoji)\(language.labelText)")
+                Text("\(language.emoji) \(language.labelText)")
                     .tag(language)
             }
         }
