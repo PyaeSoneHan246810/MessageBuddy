@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FoundationModels
 
 struct GenerateMessageScreenModel: Hashable {
     
@@ -28,20 +29,37 @@ struct GenerateMessageScreenView: View {
         .navigationDestination(item: $viewModel.messageScreenModel) { screenModel in
             MessageScreenView()
         }
+        .onAppear {
+            viewModel.prewarmRandomMessageIdeaSession()
+        }
     }
 }
 
 private extension GenerateMessageScreenView {
     var messageIdeaInputView: some View {
         VStack(spacing: 10.0) {
-            Text("Message Idea")
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack {
+                Text("Message Idea")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Spacer()
+                if viewModel.isRandomMessageSessionResponding {
+                    Image(systemName: "sparkles")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32.0, height: 32.0)
+                        .foregroundStyle(.accent)
+                        .symbolEffect(.variableColor)
+                }
+            }
+            .animation(.spring, value: viewModel.isRandomMessageSessionResponding)
             TextField("Enter the idea or topic for your message", text: $viewModel.messageIdea, axis: .vertical)
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 60.0, alignment: .top)
             Button("Random Idea", systemImage: "dice") {
-                
+                Task {
+                    await viewModel.generateRandomMessageIdea()
+                }
             }
             .buttonStyle(.borderedProminent)
             .tint(.cyan)
@@ -59,12 +77,16 @@ private extension GenerateMessageScreenView {
                     keyPointItemView(index: index, keyPoint: $keyPoint)
                 }
                 Button("Add", systemImage: "plus") {
-                    let newKeyPoint: KeyPoint = .init()
-                    viewModel.keyPoints.append(newKeyPoint)
+                    viewModel.addNewKeyPoint()
                 }
                 .buttonStyle(.bordered)
                 .labelIconToTitleSpacing(4.0)
                 .buttonSizing(.flexible)
+            }
+        }
+        .onChange(of: viewModel.isKeyPointsIncluded) {
+            if viewModel.isKeyPointsIncluded && viewModel.keyPoints.isEmpty {
+                viewModel.addNewKeyPoint()
             }
         }
     }
@@ -82,9 +104,7 @@ private extension GenerateMessageScreenView {
                 .imageScale(.large)
                 .foregroundStyle(.pink)
                 .onTapGesture {
-                    viewModel.keyPoints.removeAll {
-                        $0.id == keyPointValue.id
-                    }
+                    viewModel.removeKeyPoint(for: keyPointValue.id)
                 }
         }
         .padding(12.0)
