@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import Toasts
 
 @main
@@ -15,6 +16,7 @@ struct MessageBuddyApp: App {
     var body: some Scene {
         WindowGroup {
             StartingView()
+                .modelContainer(for: [GeneratedMessage.self])
                 .preferredColorScheme(selectedColorMode.colorScheme)
                 .environment(\.dynamicTypeSize, selectedFontSize.dynamicTypeSize)
                 .installToast(position: .bottom)

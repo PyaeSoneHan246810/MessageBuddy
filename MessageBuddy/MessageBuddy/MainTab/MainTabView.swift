@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MainTabView: View {
     @State private var selectedTabItem: TabItem = .messageGenerator
@@ -51,4 +52,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
+        .modelContainer(for: [GeneratedMessage.self], inMemory: true)
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import FoundationModels
 import Toasts
 
@@ -15,6 +16,7 @@ struct GenerateMessageScreenModel: Hashable {
 
 struct GenerateMessageScreenView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.presentToast) private var presentToast
     @State private var messageGenerator: MessageGenerator = .init()
     @State private var messageScreenModel: MessageScreenModel? = nil
@@ -146,15 +148,6 @@ private extension GenerateMessageScreenView {
                 .foregroundStyle(Color(uiColor: .systemGray3))
         }
     }
-    var toneSelectionView: some View {
-        Picker("Tone", selection: $messageGenerator.tone) {
-            ForEach(Tone.allCases) { tone in
-                Text("\(tone.emoji) \(tone.labelText)")
-                    .tag(tone)
-            }
-        }
-        .font(.headline)
-    }
     var purposeSelectionView: some View {
         Picker("Purpose", selection: $messageGenerator.purpose) {
             ForEach(Purpose.allCases) { purpose in
@@ -164,10 +157,19 @@ private extension GenerateMessageScreenView {
         }
         .font(.headline)
     }
+    var toneSelectionView: some View {
+        Picker("Tone", selection: $messageGenerator.tone) {
+            ForEach(Tone.allCases) { tone in
+                Text(tone.fullText)
+                    .tag(tone)
+            }
+        }
+        .font(.headline)
+    }
     var languageSelectionView: some View {
         Picker("Language", selection: $messageGenerator.language) {
             ForEach(Language.allCases) { language in
-                Text("\(language.emoji) \(language.labelText)")
+                Text(language.fullText)
                     .tag(language)
             }
         }
@@ -234,12 +236,30 @@ private extension GenerateMessageScreenView {
         }
         navigateToMessageScreen()
         Task {
-            await messageGenerator.generateMessage()
+            await messageGenerator.generateMessage(
+                onSuccess: {
+                    saveGeneratedMessage()
+                }
+            )
         }
     }
     func navigateToMessageScreen() {
         let screenModel: MessageScreenModel = .init()
         messageScreenModel = screenModel
+    }
+    func saveGeneratedMessage() {
+        let generatedMessage: GeneratedMessage = .init(
+            message: messageGenerator.trimmedGeneratedMessage,
+            messageIdea: messageGenerator.trimmedMessageIdea,
+            keyPoints: messageGenerator.validatedKeyPoints,
+            purpose: messageGenerator.purpose,
+            tone: messageGenerator.tone,
+            language: messageGenerator.language,
+            messageLength: messageGenerator.messageLength,
+            date: .now
+        )
+        modelContext.insert(generatedMessage)
+        try? modelContext.save()
     }
     func presentAlertToast(message: String) {
         let toastValue = ToastValue(
@@ -261,4 +281,5 @@ private extension GenerateMessageScreenView {
             screenModel: .init(messageIdea: nil)
         )
     }
+    .modelContainer(for: [GeneratedMessage.self], inMemory: true)
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Tone: String, Identifiable, CaseIterable {
+enum Tone: String, Identifiable, CaseIterable, Codable {
     case formal
     case professional
     case casual
@@ -81,6 +81,10 @@ enum Tone: String, Identifiable, CaseIterable {
         case .direct:
             return "🎯"
         }
+    }
+    
+    var fullText: String {
+        "\(emoji) \(labelText)"
     }
 }
 

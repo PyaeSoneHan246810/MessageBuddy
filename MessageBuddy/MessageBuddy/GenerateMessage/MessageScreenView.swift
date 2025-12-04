@@ -15,17 +15,17 @@ struct MessageScreenView: View {
     @Environment(\.presentToast) private var presentToast
     @State private var viewModel: MessageScreenViewModel = .init()
     @Binding var messageGenerator: MessageGenerator
-    var purposeLabel: String {
+    private var purposeText: String {
         messageGenerator.purpose.labelText
     }
-    var toneLabel: String {
-        "\(messageGenerator.tone.emoji) \(messageGenerator.tone.labelText)"
+    private var toneText: String {
+        messageGenerator.tone.fullText
     }
-    var languageLabel: String {
-        "\(messageGenerator.language.emoji) \(messageGenerator.language.labelText)"
+    private var languageText: String {
+        messageGenerator.language.fullText
     }
-    var messageLengthLabel: String {
-        "\(messageGenerator.messageLength.labelText) (\(messageGenerator.messageLength.description))"
+    private var messageLengthText: String {
+        messageGenerator.messageLength.fullText
     }
     var body: some View {
         Form {
@@ -153,22 +153,22 @@ private extension MessageScreenView {
     var messagePreferencesSectionView: some View {
         Section {
             LabeledContent {
-                Text(purposeLabel).font(.callout)
+                Text(purposeText).font(.callout)
             } label: {
                 Text("Purpose").font(.headline)
             }
             LabeledContent {
-                Text(toneLabel).font(.callout)
+                Text(toneText).font(.callout)
             } label: {
                 Text("Tone").font(.headline)
             }
             LabeledContent {
-                Text(languageLabel).font(.callout)
+                Text(languageText).font(.callout)
             } label: {
                 Text("Language").font(.headline)
             }
             LabeledContent {
-                Text(messageLengthLabel).font(.callout)
+                Text(messageLengthText).font(.callout)
             } label: {
                 Text("Message Length").font(.headline)
             }

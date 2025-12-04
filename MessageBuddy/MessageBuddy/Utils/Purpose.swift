@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Purpose: String, Identifiable, CaseIterable {
+enum Purpose: String, Identifiable, CaseIterable, Codable {
     case informative
     case casual
     case persuasive
