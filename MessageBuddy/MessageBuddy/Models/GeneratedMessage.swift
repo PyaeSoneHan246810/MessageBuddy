@@ -28,4 +28,7 @@ class GeneratedMessage {
         self.messageLength = messageLength
         self.date = date
     }
+    var trimmedMessage: String {
+        message.trimmed()
+    }
 }

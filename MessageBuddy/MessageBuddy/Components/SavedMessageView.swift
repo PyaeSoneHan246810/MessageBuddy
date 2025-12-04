@@ -1,5 +1,5 @@
 //
-//  SavedGeneratedMessageView.swift
+//  SavedMessageView.swift
 //  MessageBuddy
 //
 //  Created by Dylan on 4/12/25.
@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import WrappingHStack
 
-struct SavedGeneratedMessageView: View {
+struct SavedMessageView: View {
     @Environment(\.modelContext) private var modelContext
     let generatedMessage: GeneratedMessage
     private var date: String {
@@ -63,19 +63,7 @@ struct SavedGeneratedMessageView: View {
 }
 
 #Preview {
-    SavedGeneratedMessageView(
-        generatedMessage: .init(
-            message: "This is a preview message.",
-            messageIdea: "This is a preview message idea.",
-            keyPoints: [
-                .init(text: "This is a preview key point 1."),
-                .init(text: "This is a preview key point 2.")
-            ],
-            purpose: .apologetic,
-            tone: .empathetic,
-            language: .english,
-            messageLength: .short,
-            date: .now
-        )
+    SavedMessageView(
+        generatedMessage: PreviewData.previewGeneratedMessage
     )
 }

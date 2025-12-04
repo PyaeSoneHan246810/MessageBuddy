@@ -13,12 +13,12 @@ struct HistoryTabView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.presentToast) private var presentToast
     @Query(sort: \GeneratedMessage.date, order: .reverse) private var generatedMessages: [GeneratedMessage]
-    @State private var isClearHistoryConfirmationPresented: Bool = false
+    @State private var viewModel: HistoryTabViewModel = .init()
     var body: some View {
         NavigationStack {
             Group {
                 if generatedMessages.isEmpty {
-                    emptyHistoryView
+                    EmptyHistoryView()
                 } else {
                     savedGeneratedMessagesView
                 }
@@ -29,18 +29,15 @@ struct HistoryTabView: View {
 }
 
 private extension HistoryTabView {
-    var emptyHistoryView: some View {
-        ContentUnavailableView(
-            "Empty History",
-            systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90",
-            description: Text("Start generating messages to appear here.")
-        )
-    }
     var savedGeneratedMessagesView: some View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 16.0) {
                 ForEach(generatedMessages) { generatedMessage in
-                    SavedGeneratedMessageView(generatedMessage: generatedMessage)
+                    SavedMessageView(generatedMessage: generatedMessage)
+                        .contentShape(.rect)
+                        .onTapGesture {
+                            viewModel.selectedGeneratedMessage = generatedMessage
+                        }
                 }
             }
         }
@@ -51,16 +48,19 @@ private extension HistoryTabView {
                 clearAllButtonView
             }
         }
+        .navigationDestination(item: $viewModel.selectedGeneratedMessage) { generatedMessage in
+            SavedMessageDetailsScreenView(generatedMessage: generatedMessage)
+        }
     }
     var clearAllButtonView: some View {
         Button("Clear All", role: .destructive) {
-            isClearHistoryConfirmationPresented = true
+            viewModel.isClearHistoryConfirmationPresented = true
         }
         .buttonStyle(.borderedProminent)
         .tint(.pink)
         .confirmationDialog(
             "Are you sure to clear the history?",
-            isPresented: $isClearHistoryConfirmationPresented,
+            isPresented: $viewModel.isClearHistoryConfirmationPresented,
             titleVisibility: .visible
         ) {
             Button("Confirm", role: .destructive) {
