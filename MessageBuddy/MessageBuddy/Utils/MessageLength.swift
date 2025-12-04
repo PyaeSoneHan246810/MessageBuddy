@@ -7,13 +7,15 @@
 
 import Foundation
 
-enum MessageLength: String, Identifiable, CaseIterable {
+enum MessageLength: String, Identifiable, CaseIterable, Codable {
     case short
     case medium
     case detailed
+    
     var id: String {
         self.rawValue
     }
+    
     var labelText: String {
         switch self {
         case .short:
@@ -24,6 +26,7 @@ enum MessageLength: String, Identifiable, CaseIterable {
             "Detailed"
         }
     }
+    
     var description: String {
         switch self {
         case .short:
@@ -33,5 +36,9 @@ enum MessageLength: String, Identifiable, CaseIterable {
         case .detailed:
             "200-300 words"
         }
+    }
+    
+    var fullText: String {
+        "\(labelText) (\(description))"
     }
 }

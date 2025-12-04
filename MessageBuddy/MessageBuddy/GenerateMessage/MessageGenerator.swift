@@ -124,7 +124,7 @@ class MessageGenerator {
         }
     }
     
-    func generateMessage() async {
+    func generateMessage(onSuccess: () -> Void) async {
         withAnimation {
             generatedMessage = ""
         }
@@ -147,6 +147,7 @@ class MessageGenerator {
                     generatedMessage = content
                 }
             }
+            onSuccess()
         } catch let generationError as LanguageModelSession.GenerationError {
             withAnimation {
                 generatedMessage = ""

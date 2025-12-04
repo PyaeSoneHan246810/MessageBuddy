@@ -23,20 +23,20 @@ class ModelPrompts {
     ) -> Prompt {
         return Prompt {
             """
-            Generate a \(messageLength.labelText) (\(messageLength.description)) message in \(language.labelText) \(language.emoji), 
-            written in a \(tone.labelText) \(tone.emoji) tone, fulfilling the purpose of \(purpose.labelText).
+            Generate a message with the length of \(messageLength.fullText) in the \(language.fullText) language, written in a \(tone.fullText) tone, fulfilling the purpose of \(purpose.labelText).
 
             Instructions:
-            - Use the message idea as the main context: "\(idea)".
+            - Use the following message idea as the main context: "\(idea)".
             - Consider all provided key points: "\(keyPointsTexts.joined(separator: ", "))".
-            - If any important contextual detail (e.g., recipient's name) is missing, add a placeholder like "[Recipient's Name]".
-            - Match the requested tone, purpose, and language consistently throughout the message.
-            - Adjust the message length accordingly: concise if short, moderately detailed if medium, fully expressive if detailed.
+            - Match the requested purpose, tone, and language consistently throughout the message.
+            - Adjust the message length accordingly.
             - Avoid extra labels, headings, or explanations; output only a ready-to-send message.
+            - Only include greeting or closing phrases (like "Dear …", "Hi …", "Warm regards …", "Best …") when absolutely necessary. By default, generate messages without these elements.
+            - If any important contextual detail (e.g., recipient's name) is missing, add a placeholder like "[Recipient's Name]".
             - Ensure the message is coherent, human-like, and suitable for interpersonal communication.
 
             Output:
-            - A single, complete, ready-to-send message that integrates the idea and key points naturally, with placeholders added if necessary.
+            - A single, complete, ready-to-send message.
             """
         }
     }

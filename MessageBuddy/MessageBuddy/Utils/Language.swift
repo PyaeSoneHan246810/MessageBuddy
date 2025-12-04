@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Language: String, Identifiable, CaseIterable {
+enum Language: String, Identifiable, CaseIterable, Codable {
     case english
     case french
     case german
@@ -61,6 +61,10 @@ enum Language: String, Identifiable, CaseIterable {
         case .korean:
             return "🇰🇷"
         }
+    }
+    
+    var fullText: String {
+        "\(emoji) \(labelText)"
     }
 }
 

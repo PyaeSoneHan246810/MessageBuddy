@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct StartingView: View {
     var body: some View {
@@ -15,4 +16,5 @@ struct StartingView: View {
 
 #Preview {
     StartingView()
+        .modelContainer(for: [GeneratedMessage.self], inMemory: true)
 }

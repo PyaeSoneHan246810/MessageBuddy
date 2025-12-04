@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MessageGeneratorTabView: View {
     @State private var viewModel: MessageGeneratorTabViewModel = .init()
@@ -96,4 +97,5 @@ private extension MessageGeneratorTabView {
 
 #Preview {
     MessageGeneratorTabView()
+        .modelContainer(for: [GeneratedMessage.self], inMemory: true)
 }

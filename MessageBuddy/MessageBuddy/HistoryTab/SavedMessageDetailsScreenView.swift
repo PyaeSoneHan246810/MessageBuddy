@@ -1,20 +1,20 @@
 //
-//  MessageScreenView.swift
+//  SavedMessageDetailsScreenView.swift
 //  MessageBuddy
 //
-//  Created by Dylan on 3/12/25.
+//  Created by Dylan on 5/12/25.
 //
 
 import SwiftUI
+import SwiftData
 import Toasts
 
-struct MessageScreenModel: Hashable {}
-
-struct MessageScreenView: View {
+struct SavedMessageDetailsScreenView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.presentToast) private var presentToast
-    @State private var viewModel: MessageScreenViewModel = .init()
-    @Binding var messageGenerator: MessageGenerator
+    @State private var viewModel: SavedMessageDetailsScreenViewModel = .init()
+    @Bindable var generatedMessage: GeneratedMessage
     var body: some View {
         Form {
             generatedMessageSectionView
@@ -24,29 +24,25 @@ struct MessageScreenView: View {
         .listSectionSpacing(16.0)
         .navigationTitle("Message")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar{
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Delete", systemImage: "trash", role: .destructive) {
+                    deleteGeneratedMessage()
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.pink)
+            }
+        }
         .sheet(isPresented: $viewModel.isEditMessageSheetPresented) {
             editMessageSheetView
         }
         .sheet(isPresented: $viewModel.isShareMessageSheetPresented) {
             shareMessageSheetView
         }
-        .alert(
-            "Error Occurred!",
-            isPresented: .constant(messageGenerator.generateMessageErrorMessage != nil)
-        ) {
-            Button("Ok") {
-                messageGenerator.generateMessageErrorMessage = nil
-                dismiss()
-            }
-        } message: {
-            if let errorMessage = messageGenerator.generateMessageErrorMessage {
-                Text(errorMessage)
-            }
-        }
     }
 }
 
-private extension MessageScreenView {
+private extension SavedMessageDetailsScreenView {
     var generatedMessageSectionView: some View {
         Section {
             VStack(alignment: .leading, spacing: 12.0) {
@@ -54,12 +50,9 @@ private extension MessageScreenView {
                     Text("Generated Message ✨")
                         .font(.headline)
                     Spacer()
-                    if messageGenerator.isGenerateMessageSessionResponding {
-                        streamingIndicatorView
-                    }
                 }
-                if !messageGenerator.trimmedGeneratedMessage.isEmpty {
-                    Text(messageGenerator.trimmedGeneratedMessage)
+                if !generatedMessage.trimmedMessage.isEmpty {
+                    Text(generatedMessage.trimmedMessage)
                 }
                 Button("Edit", systemImage: "square.and.pencil") {
                     viewModel.isEditMessageSheetPresented = true
@@ -81,35 +74,23 @@ private extension MessageScreenView {
             )
         }
     }
-    var streamingIndicatorView: some View {
-        HStack(spacing: 4.0) {
-            Image(systemName: "sparkles")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32.0, height: 32.0)
-                .symbolEffect(.variableColor)
-            Text("streaming")
-                .font(.callout)
-        }
-        .foregroundStyle(Theme.mainGradient)
-    }
     var messageIdeasKeyPointsSectionView: some View {
         MessageIdeasKeyPointsSectionView(
-            messageIdea: messageGenerator.trimmedMessageIdea,
-            keyPoints: messageGenerator.validatedKeyPoints
+            messageIdea: generatedMessage.messageIdea,
+            keyPoints: generatedMessage.keyPoints
         )
     }
     var messagePreferencesSectionView: some View {
         MessagePreferencesSectionView(
-            purpose: messageGenerator.purpose,
-            tone: messageGenerator.tone,
-            language: messageGenerator.language,
-            messageLength: messageGenerator.messageLength
+            purpose: generatedMessage.purpose,
+            tone: generatedMessage.tone,
+            language: generatedMessage.language,
+            messageLength: generatedMessage.messageLength
         )
     }
     var shareMessageSheetView: some View {
         ActivityView(
-            text: messageGenerator.trimmedGeneratedMessage
+            text: generatedMessage.trimmedMessage
         )
         .presentationDetents([.medium, .large])
     }
@@ -124,12 +105,25 @@ private extension MessageScreenView {
         .presentationDetents([.medium, .large])
         .interactiveDismissDisabled()
         .onAppear {
-            viewModel.editedMessage = messageGenerator.trimmedGeneratedMessage
+            viewModel.editedMessage = generatedMessage.trimmedMessage
         }
     }
 }
 
-private extension MessageScreenView {
+private extension SavedMessageDetailsScreenView {
+    func deleteGeneratedMessage() {
+        modelContext.delete(generatedMessage)
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            presentToastMessage(
+                image: "exclamationmark.circle",
+                message: "Unable to delete message. Please try again.",
+                imageStyle: .pink.gradient
+            )
+        }
+    }
     func confirmGeneratedMessageEdit() {
         if viewModel.trimmedEditedMessage.isEmpty {
             presentToastMessage(
@@ -138,12 +132,12 @@ private extension MessageScreenView {
                 imageStyle: .pink.gradient
             )
         } else {
-            messageGenerator.generatedMessage = viewModel.trimmedEditedMessage
+            generatedMessage.message = viewModel.trimmedEditedMessage
             viewModel.isEditMessageSheetPresented = false
         }
     }
     func copyMessageToClipboard() {
-        if messageGenerator.trimmedGeneratedMessage.isEmpty {
+        if generatedMessage.trimmedMessage.isEmpty {
             presentToastMessage(
                 image: "exclamationmark.circle",
                 message: "Please enter the message to copy.",
@@ -151,7 +145,7 @@ private extension MessageScreenView {
             )
         } else {
             let uiPasteboard = UIPasteboard.general
-            uiPasteboard.string = messageGenerator.trimmedGeneratedMessage
+            uiPasteboard.string = generatedMessage.trimmedMessage
             if uiPasteboard.string != nil {
                 presentToastMessage(
                     image: "list.clipboard",
@@ -162,7 +156,7 @@ private extension MessageScreenView {
         }
     }
     func presentShareMessageSheet() {
-        if messageGenerator.trimmedGeneratedMessage.isEmpty {
+        if generatedMessage.trimmedMessage.isEmpty {
             presentToastMessage(
                 image: "exclamationmark.circle",
                 message: "Please enter the message to share.",
@@ -182,10 +176,9 @@ private extension MessageScreenView {
 }
 
 #Preview {
-    @Previewable @State var messageGenerator: MessageGenerator = .init()
     NavigationStack {
-        MessageScreenView(
-            messageGenerator: $messageGenerator,
+        SavedMessageDetailsScreenView(
+            generatedMessage: PreviewData.previewGeneratedMessage
         )
     }
 }

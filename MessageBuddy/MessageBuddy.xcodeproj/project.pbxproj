@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		048661772EE1F013003A6841 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 048661762EE1F013003A6841 /* WrappingHStack */; };
 		04A098F72EE0A307006750ED /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 04A098F62EE0A307006750ED /* Toasts */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				048661772EE1F013003A6841 /* WrappingHStack in Frameworks */,
 				04A098F72EE0A307006750ED /* Toasts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -71,6 +73,7 @@
 			name = MessageBuddy;
 			packageProductDependencies = (
 				04A098F62EE0A307006750ED /* Toasts */,
+				048661762EE1F013003A6841 /* WrappingHStack */,
 			);
 			productName = MessageBuddy;
 			productReference = 048364782EDD8DE000189F20 /* MessageBuddy.app */;
@@ -102,6 +105,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				04A098F52EE0A307006750ED /* XCRemoteSwiftPackageReference "swiftui-toasts" */,
+				048661752EE1F013003A6841 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 048364792EDD8DE000189F20 /* Products */;
@@ -345,6 +349,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		048661752EE1F013003A6841 /* XCRemoteSwiftPackageReference "WrappingHStack" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ksemianov/WrappingHStack";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.0;
+			};
+		};
 		04A098F52EE0A307006750ED /* XCRemoteSwiftPackageReference "swiftui-toasts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sunghyun-k/swiftui-toasts";
@@ -356,6 +368,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		048661762EE1F013003A6841 /* WrappingHStack */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 048661752EE1F013003A6841 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
+			productName = WrappingHStack;
+		};
 		04A098F62EE0A307006750ED /* Toasts */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 04A098F52EE0A307006750ED /* XCRemoteSwiftPackageReference "swiftui-toasts" */;
