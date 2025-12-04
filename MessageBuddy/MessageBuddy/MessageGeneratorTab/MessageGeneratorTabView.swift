@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MessageGeneratorTabView: View {
-    @State private var messageIdeas: [MessageIdea] = StaticData.messageIdeas
+    @State private var viewModel: MessageGeneratorTabViewModel = .init()
     var body: some View {
         NavigationStack {
             ScrollView(.vertical) {
@@ -19,6 +19,11 @@ struct MessageGeneratorTabView: View {
             }
             .scrollIndicators(.hidden)
             .navigationTitle(TabItem.messageGenerator.labelText)
+            .navigationDestination(item: $viewModel.generateMessageScreenModel) { screenModel in
+                GenerateMessageScreenView(
+                    screenModel: screenModel
+                )
+            }
         }
     }
 }
@@ -39,7 +44,10 @@ private extension MessageGeneratorTabView {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             Button {
-                
+                let screenModel: GenerateMessageScreenModel = .init(
+                    messageIdea: nil
+                )
+                viewModel.navigateToGenerateMessageScreen(screenModel)
             } label: {
                 Text("Continue")
                     .foregroundStyle(.white)
@@ -56,7 +64,7 @@ private extension MessageGeneratorTabView {
                 .font(.title3)
                 .fontWeight(.semibold)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            ForEach(messageIdeas) { messageIdea in
+            ForEach(viewModel.messageIdeas) { messageIdea in
                 messageIdeaView(messageIdea)
             }
         }
@@ -75,6 +83,13 @@ private extension MessageGeneratorTabView {
                 .font(.system(size: 40.0))
         }
         .padding(12.0)
+        .contentShape(.rect)
+        .onTapGesture {
+            let screenModel: GenerateMessageScreenModel = .init(
+                messageIdea: messageIdea
+            )
+            viewModel.navigateToGenerateMessageScreen(screenModel)
+        }
         .background(Color(uiColor: .systemGray6), in: RoundedRectangle(cornerRadius: 12.0))
     }
 }

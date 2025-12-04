@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		04A098F72EE0A307006750ED /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 04A098F62EE0A307006750ED /* Toasts */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		048364782EDD8DE000189F20 /* MessageBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessageBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04A098F72EE0A307006750ED /* Toasts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = MessageBuddy;
 			packageProductDependencies = (
+				04A098F62EE0A307006750ED /* Toasts */,
 			);
 			productName = MessageBuddy;
 			productReference = 048364782EDD8DE000189F20 /* MessageBuddy.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 0483646F2EDD8DE000189F20;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				04A098F52EE0A307006750ED /* XCRemoteSwiftPackageReference "swiftui-toasts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 048364792EDD8DE000189F20 /* Products */;
 			projectDirPath = "";
@@ -251,6 +260,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CL5Q2QY8FV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MessageBuddy;
@@ -284,6 +294,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CL5Q2QY8FV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MessageBuddy;
@@ -332,6 +343,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		04A098F52EE0A307006750ED /* XCRemoteSwiftPackageReference "swiftui-toasts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sunghyun-k/swiftui-toasts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		04A098F62EE0A307006750ED /* Toasts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04A098F52EE0A307006750ED /* XCRemoteSwiftPackageReference "swiftui-toasts" */;
+			productName = Toasts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 048364702EDD8DE000189F20 /* Project object */;
 }
