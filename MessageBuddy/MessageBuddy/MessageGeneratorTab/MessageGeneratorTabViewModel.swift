@@ -14,35 +14,55 @@ class MessageGeneratorTabViewModel {
         .init(
             title: "Birthday Wish",
             description: "A warm and heartfelt message for someone’s special day.",
-            emoji: "🎉"
+            emoji: "🎉",
+            text: "A short message to celebrate someone's special day with warmth.",
+            purpose: .supportive,
+            tone: .friendly
         ),
         .init(
             title: "Conversation Starter",
             description: "A simple and engaging message to start a chat.",
-            emoji: "💬"
+            emoji: "💬",
+            text: "A message to begin a light and easy conversation.",
+            purpose: .casual,
+            tone: .relaxed
         ),
         .init(
             title: "Compliment",
             description: "A sweet and uplifting message to brighten someone’s day.",
-            emoji: "😊"
+            emoji: "😊",
+            text: "A short message to offer a kind and uplifting compliment.",
+            purpose: .compliment,
+            tone: .positive
         ),
         .init(
             title: "Congratulation Message",
             description: "A celebratory message for achievements and milestones.",
-            emoji: "🌟"
+            emoji: "🌟",
+            text: "A message to congratulate someone on an important achievement.",
+            purpose: .congratulatory,
+            tone: .confident
         ),
         .init(
             title: "Apology Message",
             description: "A sincere and respectful message to express regret.",
-            emoji: "🙏"
+            emoji: "🙏",
+            text: "A message to apologize sincerely for a recent mistake.",
+            purpose: .apologetic,
+            tone: .empathetic
         ),
         .init(
             title: "Funny Text",
             description: "A playful and humorous message to make someone smile.",
-            emoji: "😄"
+            emoji: "😄",
+            text: "A short message to share a lighthearted joke and spark a smile.",
+            purpose: .casual,
+            tone: .friendly
         )
     ]
+
     var generateMessageScreenModel: GenerateMessageScreenModel? = nil
+    
     func navigateToGenerateMessageScreen(_ screenModel: GenerateMessageScreenModel) {
         generateMessageScreenModel = screenModel
     }

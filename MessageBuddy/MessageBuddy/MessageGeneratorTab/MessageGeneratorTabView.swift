@@ -20,7 +20,9 @@ struct MessageGeneratorTabView: View {
             .scrollIndicators(.hidden)
             .navigationTitle(TabItem.messageGenerator.labelText)
             .navigationDestination(item: $viewModel.generateMessageScreenModel) { screenModel in
-                GenerateMessageScreenView()
+                GenerateMessageScreenView(
+                    screenModel: screenModel
+                )
             }
         }
     }
@@ -42,7 +44,9 @@ private extension MessageGeneratorTabView {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             Button {
-                let screenModel: GenerateMessageScreenModel = .init()
+                let screenModel: GenerateMessageScreenModel = .init(
+                    messageIdea: nil
+                )
                 viewModel.navigateToGenerateMessageScreen(screenModel)
             } label: {
                 Text("Continue")
@@ -79,8 +83,11 @@ private extension MessageGeneratorTabView {
                 .font(.system(size: 40.0))
         }
         .padding(12.0)
+        .contentShape(.rect)
         .onTapGesture {
-            let screenModel: GenerateMessageScreenModel = .init()
+            let screenModel: GenerateMessageScreenModel = .init(
+                messageIdea: messageIdea
+            )
             viewModel.navigateToGenerateMessageScreen(screenModel)
         }
         .background(Color(uiColor: .systemGray6), in: RoundedRectangle(cornerRadius: 12.0))

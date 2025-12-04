@@ -7,34 +7,63 @@
 
 import SwiftUI
 import FoundationModels
+import Toasts
 
 struct GenerateMessageScreenModel: Hashable {
-    
+    let messageIdea: MessageIdea?
 }
 
 struct GenerateMessageScreenView: View {
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.presentToast) private var presentToast
     @State private var messageGenerator: MessageGenerator = .init()
     @State private var messageScreenModel: MessageScreenModel? = nil
+    let screenModel: GenerateMessageScreenModel
     var body: some View {
-        Form {
-            messageIdeaInputView
-            keyPointsInputView
-            purposeSelectionView
-            toneSelectionView
-            languageSelectionView
-            messageLengthSelectionView
-            generateMessageButtonView
+        Group {
+            if messageGenerator.isModelAvailable {
+                Form {
+                    messageIdeaInputView
+                    keyPointsInputView
+                    purposeSelectionView
+                    toneSelectionView
+                    languageSelectionView
+                    messageLengthSelectionView
+                    generateMessageButtonView
+                }
+                .navigationDestination(item: $messageScreenModel) { _ in
+                    MessageScreenView(
+                        messageGenerator: $messageGenerator
+                    )
+                }
+                .onAppear {
+                    messageGenerator.prewarmRandomMessageIdeaSession()
+                }
+            } else {
+                if let reason = messageGenerator.modelUnavailableReason {
+                    AppleIntelligenceUnavailableView(
+                        reason: reason,
+                        onTryAgain: {
+                            messageGenerator.checkModelAvailability()
+                        }
+                    )
+                } else {
+                    ProgressView()
+                }
+            }
         }
         .navigationTitle("Generate Message")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(item: $messageScreenModel) { screenModel in
-            MessageScreenView(
-                messageGenerator: $messageGenerator,
-                screenModel: screenModel
-            )
-        }
         .onAppear {
-            messageGenerator.prewarmRandomMessageIdeaSession()
+            messageGenerator.checkModelAvailability()
+            if let messageIdea = screenModel.messageIdea {
+                setUpMessageIdea(messageIdea)
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                messageGenerator.checkModelAvailability()
+            }
         }
     }
 }
@@ -61,9 +90,7 @@ private extension GenerateMessageScreenView {
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 60.0, alignment: .top)
             Button("Random Idea", systemImage: "dice") {
-                Task {
-                    await messageGenerator.generateRandomMessageIdea()
-                }
+                generateRandomIdea()
             }
             .buttonStyle(.borderedProminent)
             .tint(.cyan)
@@ -169,10 +196,7 @@ private extension GenerateMessageScreenView {
     }
     var generateMessageButtonView: some View {
         Button {
-            navigateToMessageScreen()
-            Task {
-                await messageGenerator.generateMessage()
-            }
+            generateMessage()
         } label: {
             HStack(spacing: 4.0) {
                 Image(systemName: "sparkles")
@@ -188,22 +212,52 @@ private extension GenerateMessageScreenView {
     }
 }
 
-extension GenerateMessageScreenView {
+private extension GenerateMessageScreenView {
+    func generateRandomIdea() {
+        guard messageGenerator.isModelAvailable else {
+            presentAlertToast(message: "The model is not available to generate.")
+            return
+        }
+        Task {
+            await messageGenerator.generateRandomMessageIdea()
+        }
+    }
+    func generateMessage() {
+        guard !messageGenerator.trimmedMessageIdea.isEmpty else {
+            presentAlertToast(message: "Please enter the message idea.")
+            return
+        }
+        guard messageGenerator.isModelAvailable else {
+            presentAlertToast(message: "The model is not available to generate.")
+            return
+        }
+        navigateToMessageScreen()
+        Task {
+            await messageGenerator.generateMessage()
+        }
+    }
     func navigateToMessageScreen() {
-        let screenModel: MessageScreenModel = .init(
-            messageIdea: messageGenerator.messageIdea,
-            keyPoints: messageGenerator.keyPoints,
-            purpose: messageGenerator.purpose,
-            tone: messageGenerator.tone,
-            language: messageGenerator.language,
-            messageLength: messageGenerator.messageLength
-        )
+        let screenModel: MessageScreenModel = .init()
         messageScreenModel = screenModel
+    }
+    func presentAlertToast(message: String) {
+        let toastValue = ToastValue(
+            icon: Image(systemName: "exclamationmark.circle").foregroundStyle(.pink.gradient),
+            message: message
+        )
+        presentToast(toastValue)
+    }
+    func setUpMessageIdea(_ messageIdea: MessageIdea) {
+        messageGenerator.messageIdea = messageIdea.text
+        messageGenerator.tone = messageIdea.tone
+        messageGenerator.purpose = messageIdea.purpose
     }
 }
 
 #Preview {
     NavigationStack {
-        GenerateMessageScreenView()
+        GenerateMessageScreenView(
+            screenModel: .init(messageIdea: nil)
+        )
     }
 }

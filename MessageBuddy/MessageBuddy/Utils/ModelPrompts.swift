@@ -15,7 +15,7 @@ class ModelPrompts {
     
     static func generateMessagePrompt(
         idea: String,
-        keyPoints: [String],
+        keyPointsTexts: [String],
         purpose: Purpose,
         tone: Tone,
         language: Language,
@@ -28,7 +28,7 @@ class ModelPrompts {
 
             Instructions:
             - Use the message idea as the main context: "\(idea)".
-            - Consider all provided key points: \(keyPoints.joined(separator: ", ")).
+            - Consider all provided key points: "\(keyPointsTexts.joined(separator: ", "))".
             - If any important contextual detail (e.g., recipient's name) is missing, add a placeholder like "[Recipient's Name]".
             - Match the requested tone, purpose, and language consistently throughout the message.
             - Adjust the message length accordingly: concise if short, moderately detailed if medium, fully expressive if detailed.

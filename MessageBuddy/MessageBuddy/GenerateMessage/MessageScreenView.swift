@@ -8,33 +8,24 @@
 import SwiftUI
 import Toasts
 
-struct MessageScreenModel: Hashable {
-    let messageIdea: String
-    let keyPoints: [KeyPoint]
-    let purpose: Purpose
-    let tone: Tone
-    let language: Language
-    let messageLength: MessageLength
-}
+struct MessageScreenModel: Hashable {}
 
 struct MessageScreenView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.presentToast) private var presentToast
-    @State private var isEditMessageSheetPresented: Bool = false
-    @State private var isShareMessageSheetPresented: Bool = false
+    @State private var viewModel: MessageScreenViewModel = .init()
     @Binding var messageGenerator: MessageGenerator
-    let screenModel: MessageScreenModel
     var purposeLabel: String {
-        screenModel.purpose.labelText
+        messageGenerator.purpose.labelText
     }
     var toneLabel: String {
-        "\(screenModel.tone.emoji) \(screenModel.tone.labelText)"
+        "\(messageGenerator.tone.emoji) \(messageGenerator.tone.labelText)"
     }
     var languageLabel: String {
-        "\(screenModel.language.emoji) \(screenModel.language.labelText)"
+        "\(messageGenerator.language.emoji) \(messageGenerator.language.labelText)"
     }
-    
     var messageLengthLabel: String {
-        "\(screenModel.messageLength.labelText) (\(screenModel.messageLength.description))"
+        "\(messageGenerator.messageLength.labelText) (\(messageGenerator.messageLength.description))"
     }
     var body: some View {
         Form {
@@ -45,11 +36,24 @@ struct MessageScreenView: View {
         .listSectionSpacing(16.0)
         .navigationTitle("Message")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $isEditMessageSheetPresented) {
+        .sheet(isPresented: $viewModel.isEditMessageSheetPresented) {
             editMessageSheetView
         }
-        .sheet(isPresented: $isShareMessageSheetPresented) {
+        .sheet(isPresented: $viewModel.isShareMessageSheetPresented) {
             shareMessageSheetView
+        }
+        .alert(
+            "Error Occurred!",
+            isPresented: .constant(messageGenerator.generateMessageErrorMessage != nil)
+        ) {
+            Button("Ok") {
+                messageGenerator.generateMessageErrorMessage = nil
+                dismiss()
+            }
+        } message: {
+            if let errorMessage = messageGenerator.generateMessageErrorMessage {
+                Text(errorMessage)
+            }
         }
     }
 }
@@ -75,9 +79,11 @@ private extension MessageScreenView {
                         .foregroundStyle(Theme.mainGradient)
                     }
                 }
-                Text(messageGenerator.generatedMessage)
+                if !messageGenerator.trimmedGeneratedMessage.isEmpty {
+                    Text(messageGenerator.trimmedGeneratedMessage)
+                }
                 Button("Edit", systemImage: "square.and.pencil") {
-                    isEditMessageSheetPresented = true
+                    viewModel.isEditMessageSheetPresented = true
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.cyan)
@@ -102,7 +108,7 @@ private extension MessageScreenView {
                 }
                 .buttonStyle(.borderless)
                 Button {
-                    isShareMessageSheetPresented = true
+                    presentShareMessageSheet()
                 } label: {
                     HStack(spacing: 4.0) {
                         Image(systemName: "square.and.arrow.up")
@@ -123,15 +129,15 @@ private extension MessageScreenView {
             VStack(alignment: .leading, spacing: 8.0) {
                 Text("Message Idea")
                     .font(.headline)
-                Text(screenModel.messageIdea)
+                Text(messageGenerator.messageIdea)
                     .font(.callout)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            if !screenModel.keyPoints.isEmpty {
+            if !messageGenerator.keyPoints.isEmpty {
                 VStack(alignment: .leading, spacing: 8.0) {
                     Text("Key Points")
                         .font(.headline)
-                    ForEach(screenModel.keyPoints) { keyPoint in
+                    ForEach(messageGenerator.keyPoints) { keyPoint in
                         HStack(alignment: .firstTextBaseline, spacing: 8.0) {
                             Image(systemName: "arrowshape.right.fill")
                                 .foregroundStyle(.secondary)
@@ -176,12 +182,12 @@ private extension MessageScreenView {
         .presentationDetents([.medium, .large])
     }
     var editMessageSheetView: some View {
-        NavigationStack {
+        return NavigationStack {
             ScrollView(.vertical) {
                 VStack {
                     TextField(
-                        "Enter the message",
-                        text: $messageGenerator.generatedMessage,
+                        "Enter the message to edit",
+                        text: $viewModel.editedMessage,
                         axis: .vertical
                     )
                 }
@@ -191,34 +197,83 @@ private extension MessageScreenView {
             .navigationTitle("Edit Message")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                Button(role: .close) {
-                    isEditMessageSheetPresented = false
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(role: .close) {
+                        viewModel.isEditMessageSheetPresented = false
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .confirm) {
+                        confirmGeneratedMessageEdit()
+                    }
                 }
             }
         }
         .presentationDetents([.medium, .large])
-    }
-}
-
-extension MessageScreenView {
-    func copyMessageToClipboard() {
-        let uiPasteboard = UIPasteboard.general
-        uiPasteboard.string = messageGenerator.generatedMessage
-        if uiPasteboard.string != nil {
-            let toastValue = ToastValue(
-                icon: Image(systemName: "list.clipboard").foregroundStyle(Theme.mainGradient),
-                message: "Copied to clipboard."
-            )
-            presentToast(toastValue)
+        .interactiveDismissDisabled()
+        .onAppear {
+            viewModel.editedMessage = messageGenerator.generatedMessage
         }
     }
 }
 
+private extension MessageScreenView {
+    func confirmGeneratedMessageEdit() {
+        if viewModel.trimmedEditedMessage.isEmpty {
+            presentToast(
+                image: "exclamationmark.circle",
+                message: "Please enter the message to save.",
+                imageStyle: .pink.gradient
+            )
+        } else {
+            messageGenerator.generatedMessage = viewModel.trimmedEditedMessage
+            viewModel.isEditMessageSheetPresented = false
+        }
+    }
+    func copyMessageToClipboard() {
+        if messageGenerator.trimmedGeneratedMessage.isEmpty {
+            presentToast(
+                image: "exclamationmark.circle",
+                message: "Please enter the message to copy.",
+                imageStyle: .pink.gradient
+            )
+        } else {
+            let uiPasteboard = UIPasteboard.general
+            uiPasteboard.string = messageGenerator.generatedMessage
+            if uiPasteboard.string != nil {
+                presentToast(
+                    image: "list.clipboard",
+                    message: "Copied to clipboard.",
+                    imageStyle: Theme.mainGradient
+                )
+            }
+        }
+    }
+    func presentShareMessageSheet() {
+        if messageGenerator.trimmedGeneratedMessage.isEmpty {
+            presentToast(
+                image: "exclamationmark.circle",
+                message: "Please enter the message to share.",
+                imageStyle: .pink.gradient
+            )
+        } else {
+            viewModel.isShareMessageSheetPresented = true
+        }
+    }
+    func presentToast(image: String, message: String, imageStyle: any ShapeStyle) {
+        let toastValue = ToastValue(
+            icon: Image(systemName: image).foregroundStyle(imageStyle),
+            message: message
+        )
+        presentToast(toastValue)
+    }
+}
+
 #Preview {
+    @Previewable @State var messageGenerator: MessageGenerator = .init()
     NavigationStack {
         MessageScreenView(
-            messageGenerator: .constant(.init()),
-            screenModel: .init(messageIdea: "", keyPoints: [], purpose: .informative, tone: .formal, language: .english, messageLength: .short)
+            messageGenerator: $messageGenerator,
         )
     }
 }
