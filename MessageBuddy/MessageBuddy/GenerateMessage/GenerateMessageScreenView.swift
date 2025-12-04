@@ -103,6 +103,7 @@ private extension GenerateMessageScreenView {
         VStack(spacing: 10.0) {
             Toggle("Key Points", isOn: $messageGenerator.isKeyPointsIncluded)
                 .font(.headline)
+                .tint(.accent)
             if messageGenerator.isKeyPointsIncluded {
                 ForEach($messageGenerator.keyPoints.enumerated(), id: \.element.wrappedValue.id) { index, $keyPoint in
                     keyPointItemView(index: index, keyPoint: $keyPoint)

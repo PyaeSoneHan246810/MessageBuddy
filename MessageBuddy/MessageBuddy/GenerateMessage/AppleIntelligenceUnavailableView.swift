@@ -20,7 +20,7 @@ struct AppleIntelligenceUnavailableView: View {
                 onTryAgain()
             }
             .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .controlSize(.regular)
         }
     }
 }

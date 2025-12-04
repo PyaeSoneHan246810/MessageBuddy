@@ -129,15 +129,15 @@ private extension MessageScreenView {
             VStack(alignment: .leading, spacing: 8.0) {
                 Text("Message Idea")
                     .font(.headline)
-                Text(messageGenerator.messageIdea)
+                Text(messageGenerator.trimmedMessageIdea)
                     .font(.callout)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            if !messageGenerator.keyPoints.isEmpty {
+            if !messageGenerator.validatedKeyPoints.isEmpty {
                 VStack(alignment: .leading, spacing: 8.0) {
                     Text("Key Points")
                         .font(.headline)
-                    ForEach(messageGenerator.keyPoints) { keyPoint in
+                    ForEach(messageGenerator.validatedKeyPoints) { keyPoint in
                         HStack(alignment: .firstTextBaseline, spacing: 8.0) {
                             Image(systemName: "arrowshape.right.fill")
                                 .foregroundStyle(.secondary)
@@ -145,7 +145,6 @@ private extension MessageScreenView {
                         }
                         .font(.callout)
                     }
-                    
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
