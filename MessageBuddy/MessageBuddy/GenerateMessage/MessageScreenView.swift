@@ -71,10 +71,7 @@ private extension MessageScreenView {
                 Button("Edit", systemImage: "square.and.pencil") {
                     viewModel.isEditMessageSheetPresented = true
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.cyan)
-                .foregroundStyle(.white)
-                .labelIconToTitleSpacing(4.0)
+                .tertiaryButtonStyle()
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -116,12 +113,10 @@ private extension MessageScreenView {
     }
     var saveAsHistorySectionView: some View {
         Section {
-            Button("Save as History") {
-                saveGeneratedMessage()
-            }
-            .buttonStyle(.bordered)
-            .buttonSizing(.flexible)
-            .tint(.accent)
+            Text("Save as History")
+                .asSecondaryLargeButton {
+                    saveGeneratedMessage()
+                }
         }
     }
     var shareMessageSheetView: some View {

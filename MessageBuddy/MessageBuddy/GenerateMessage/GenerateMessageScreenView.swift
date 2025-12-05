@@ -95,10 +95,7 @@ private extension GenerateMessageScreenView {
             Button("Random Idea", systemImage: "dice") {
                 generateRandomIdea()
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.cyan)
-            .foregroundStyle(.white)
-            .labelIconToTitleSpacing(4.0)
+            .tertiaryButtonStyle()
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
@@ -111,12 +108,14 @@ private extension GenerateMessageScreenView {
                 ForEach($messageGenerator.keyPoints.enumerated(), id: \.element.wrappedValue.id) { index, $keyPoint in
                     keyPointItemView(index: index, keyPoint: $keyPoint)
                 }
-                Button("Add", systemImage: "plus") {
+                HStack(spacing: 4.0) {
+                    Image(systemName: "plus")
+                        .imageScale(.large)
+                    Text("Add")
+                }
+                .asSecondaryLargeButton {
                     messageGenerator.addNewKeyPoint()
                 }
-                .buttonStyle(.bordered)
-                .labelIconToTitleSpacing(4.0)
-                .buttonSizing(.flexible)
             }
         }
         .onChange(of: messageGenerator.isKeyPointsIncluded) {
@@ -199,18 +198,13 @@ private extension GenerateMessageScreenView {
         }
     }
     var generateMessageButtonView: some View {
-        Button {
+        HStack(spacing: 4.0) {
+            Image(systemName: "sparkles")
+                .imageScale(.large)
+            Text("Generate Message")
+        }
+        .asPrimaryLargeButton {
             generateMessage()
-        } label: {
-            HStack(spacing: 4.0) {
-                Image(systemName: "sparkles")
-                    .imageScale(.large)
-                Text("Generate Message")
-            }
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 50.0)
-            .background(Theme.mainGradient, in: .capsule)
         }
         .buttonStyle(.borderless)
     }

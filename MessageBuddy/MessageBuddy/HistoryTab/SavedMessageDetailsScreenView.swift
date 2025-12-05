@@ -29,8 +29,7 @@ struct SavedMessageDetailsScreenView: View {
                 Button("Delete", systemImage: "trash", role: .destructive) {
                     deleteGeneratedMessage()
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.pink)
+                .destructiveButtonStyle()
             }
         }
         .sheet(isPresented: $viewModel.isEditMessageSheetPresented) {
@@ -57,10 +56,7 @@ private extension SavedMessageDetailsScreenView {
                 Button("Edit", systemImage: "square.and.pencil") {
                     viewModel.isEditMessageSheetPresented = true
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.cyan)
-                .foregroundStyle(.white)
-                .labelIconToTitleSpacing(4.0)
+                .tertiaryButtonStyle()
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

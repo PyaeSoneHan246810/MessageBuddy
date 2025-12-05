@@ -44,18 +44,13 @@ private extension MessageGeneratorTabView {
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            Button {
-                let screenModel: GenerateMessageScreenModel = .init(
-                    messageIdea: nil
-                )
-                viewModel.navigateToGenerateMessageScreen(screenModel)
-            } label: {
-                Text("Continue")
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50.0)
-                    .background(Theme.mainGradient, in: .capsule)
-            }
+            Text("Continue")
+                .asPrimaryLargeButton {
+                    let screenModel: GenerateMessageScreenModel = .init(
+                        messageIdea: nil
+                    )
+                    viewModel.navigateToGenerateMessageScreen(screenModel)
+                }
         }
         .padding(16.0)
     }

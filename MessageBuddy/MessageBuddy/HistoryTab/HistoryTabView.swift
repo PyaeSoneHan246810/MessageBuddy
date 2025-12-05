@@ -56,8 +56,7 @@ private extension HistoryTabView {
         Button("Clear All", role: .destructive) {
             viewModel.isClearHistoryConfirmationPresented = true
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.pink)
+        .destructiveButtonStyle()
         .confirmationDialog(
             "Are you sure to clear the history?",
             isPresented: $viewModel.isClearHistoryConfirmationPresented,
