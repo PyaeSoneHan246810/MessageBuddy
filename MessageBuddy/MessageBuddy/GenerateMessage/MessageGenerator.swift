@@ -58,6 +58,8 @@ class MessageGenerator {
         }
     }
     
+    var savedGeneratedMessage: GeneratedMessage? = nil
+    
     private(set) var modelUnavailableReason: String? = nil
     
     var isModelAvailable: Bool {

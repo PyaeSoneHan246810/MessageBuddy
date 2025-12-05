@@ -80,5 +80,4 @@ private extension HistoryTabView {
 
 #Preview {
     HistoryTabView()
-        .modelContainer(for: [GeneratedMessage.self], inMemory: true)
 }

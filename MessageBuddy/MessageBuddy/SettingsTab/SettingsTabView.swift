@@ -10,12 +10,14 @@ import SwiftUI
 struct SettingsTabView: View {
     @AppStorage(AppStorageKeys.colorMode) private var selectedColorMode: ColorMode = .system
     @AppStorage(AppStorageKeys.fontSize) private var selectedFontSize: FontSize = .defaultFontSize
+    @AppStorage(AppStorageKeys.autoSaveHistory) private var autoSaveHistory: Bool = true
     @State private var viewModel: SettingsTabViewModel = .init()
     var body: some View {
         NavigationStack {
             Form {
                 aboutSectionView
                 customizationSectionView
+                appSettingsSectionView
                 applicationSectionView
             }
             .listSectionSpacing(16.0)
@@ -71,6 +73,16 @@ private extension SettingsTabView {
                         .tag(fontSize)
                 }
             }
+        }
+    }
+    var appSettingsSectionView: some View {
+        Section {
+            sectionHeaderView(
+                title: "App Settings",
+                systemImage: "gearshape"
+            )
+            Toggle("Auto Save History", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90", isOn: $autoSaveHistory)
+                .tint(.accent)
         }
     }
     var applicationSectionView: some View {
