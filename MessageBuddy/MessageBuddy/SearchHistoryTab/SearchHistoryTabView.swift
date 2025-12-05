@@ -10,13 +10,13 @@ import SwiftData
 
 struct SearchHistoryTabView: View {
     @Query(sort: \GeneratedMessage.date, order: .reverse) private var generatedMessages: [GeneratedMessage]
-    @State private var searchText: String = ""
     @State private var selectedGeneratedMessage: GeneratedMessage?
-    private var trimmedSearchText: String {
-        searchText.trimmed()
-    }
+    @State private var searchText: String = ""
     private var filteredGeneratedMessages: [GeneratedMessage] {
         getFilteredGeneratedMessages()
+    }
+    private var trimmedSearchText: String {
+        searchText.trimmed()
     }
     var body: some View {
         NavigationStack {

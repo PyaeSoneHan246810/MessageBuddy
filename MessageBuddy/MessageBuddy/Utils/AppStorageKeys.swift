@@ -10,4 +10,5 @@ import Foundation
 class AppStorageKeys {
     static let colorMode: String = "colorMode"
     static let fontSize: String = "fontSize"
+    static let autoSaveHistory: String = "autoSaveHistory"
 }

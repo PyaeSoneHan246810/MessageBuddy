@@ -6,13 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 import Toasts
 
 struct MessageScreenModel: Hashable {}
 
 struct MessageScreenView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.presentToast) private var presentToast
+    @AppStorage(AppStorageKeys.autoSaveHistory) private var autoSaveHistory: Bool = true
+    @Query private var generatedMessages: [GeneratedMessage]
     @State private var viewModel: MessageScreenViewModel = .init()
     @Binding var messageGenerator: MessageGenerator
     var body: some View {
@@ -20,6 +24,9 @@ struct MessageScreenView: View {
             generatedMessageSectionView
             messageIdeasKeyPointsSectionView
             messagePreferencesSectionView
+            if !autoSaveHistory {
+                saveAsHistorySectionView
+            }
         }
         .listSectionSpacing(16.0)
         .navigationTitle("Message")
@@ -107,6 +114,16 @@ private extension MessageScreenView {
             messageLength: messageGenerator.messageLength
         )
     }
+    var saveAsHistorySectionView: some View {
+        Section {
+            Button("Save as History") {
+                saveGeneratedMessage()
+            }
+            .buttonStyle(.bordered)
+            .buttonSizing(.flexible)
+            .tint(.accent)
+        }
+    }
     var shareMessageSheetView: some View {
         ActivityView(
             text: messageGenerator.trimmedGeneratedMessage
@@ -130,6 +147,33 @@ private extension MessageScreenView {
 }
 
 private extension MessageScreenView {
+    func saveGeneratedMessage() {
+        let generatedMessage: GeneratedMessage = .init(
+            message: messageGenerator.trimmedGeneratedMessage,
+            messageIdea: messageGenerator.trimmedMessageIdea,
+            keyPoints: messageGenerator.validatedKeyPoints,
+            purpose: messageGenerator.purpose,
+            tone: messageGenerator.tone,
+            language: messageGenerator.language,
+            messageLength: messageGenerator.messageLength,
+            date: .now
+        )
+        modelContext.insert(generatedMessage)
+        do {
+            try modelContext.save()
+            presentToastMessage(
+                image: "checkmark.circle",
+                message: "Successfully saved as history.",
+                imageStyle: Theme.mainGradient
+            )
+        } catch {
+            presentToastMessage(
+                image: "exclamationmark.circle",
+                message: "Unable to save as history. Please try again.",
+                imageStyle: .pink.gradient
+            )
+        }
+    }
     func confirmGeneratedMessageEdit() {
         if viewModel.trimmedEditedMessage.isEmpty {
             presentToastMessage(
@@ -139,6 +183,13 @@ private extension MessageScreenView {
             )
         } else {
             messageGenerator.generatedMessage = viewModel.trimmedEditedMessage
+            if autoSaveHistory {
+                if let savedGeneratedMessageId = messageGenerator.savedGeneratedMessage?.id, let savedGenratedMessage = generatedMessages.first(where: { it in
+                    it.id == savedGeneratedMessageId
+                }) {
+                    savedGenratedMessage.message = viewModel.trimmedEditedMessage
+                }
+            }
             viewModel.isEditMessageSheetPresented = false
         }
     }
@@ -185,7 +236,7 @@ private extension MessageScreenView {
     @Previewable @State var messageGenerator: MessageGenerator = .init()
     NavigationStack {
         MessageScreenView(
-            messageGenerator: $messageGenerator,
+            messageGenerator: $messageGenerator
         )
     }
 }

@@ -18,6 +18,7 @@ struct GenerateMessageScreenView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) private var modelContext
     @Environment(\.presentToast) private var presentToast
+    @AppStorage(AppStorageKeys.autoSaveHistory) private var autoSaveHistory: Bool = true
     @State private var messageGenerator: MessageGenerator = .init()
     @State private var messageScreenModel: MessageScreenModel? = nil
     let screenModel: GenerateMessageScreenModel
@@ -248,6 +249,7 @@ private extension GenerateMessageScreenView {
         messageScreenModel = screenModel
     }
     func saveGeneratedMessage() {
+        guard autoSaveHistory else { return }
         let generatedMessage: GeneratedMessage = .init(
             message: messageGenerator.trimmedGeneratedMessage,
             messageIdea: messageGenerator.trimmedMessageIdea,
@@ -259,7 +261,12 @@ private extension GenerateMessageScreenView {
             date: .now
         )
         modelContext.insert(generatedMessage)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+            messageGenerator.savedGeneratedMessage = generatedMessage
+        } catch {
+            presentAlertToast(message: "Unable to save as history. Please try again")
+        }
     }
     func presentAlertToast(message: String) {
         let toastValue = ToastValue(
